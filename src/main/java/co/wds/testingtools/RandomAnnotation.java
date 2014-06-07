@@ -41,11 +41,27 @@ public class RandomAnnotation {
 
 	private static void randomise(Object testClass, Set<Field> fieldsToBeRandomised) throws IllegalArgumentException, IllegalAccessException {
 		for (Field field: fieldsToBeRandomised) {
-			field.set(testClass, randomise(String.class));
+			field.set(testClass, randomise(field.getType()));
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static <S> S randomise(Class<S> classToRandomise) {
-		return (S) String.format("%h",  randomiser.nextLong());
+		if (classToRandomise.equals(Long.class) || classToRandomise.equals(long.class)) {
+			return (S) (Long) randomiser.nextLong();
+		} else if (classToRandomise.equals(Integer.class) || classToRandomise.equals(int.class)) {
+			return (S) (Integer) randomiser.nextInt();
+		} else if (classToRandomise.equals(Boolean.class) || classToRandomise.equals(boolean.class)) {
+			return (S) (Boolean) randomiser.nextBoolean();
+		} else if (classToRandomise.equals(Double.class) || classToRandomise.equals(double.class)) {
+			return (S) (Double) randomiser.nextDouble();
+		} else if (classToRandomise.equals(Float.class) || classToRandomise.equals(float.class)) {
+			return (S) (Float) randomiser.nextFloat();
+		} else if (classToRandomise.equals(String.class)) {
+			return (S) String.format("%h",  randomiser.nextLong());
+		} else {
+			System.out.println("unrecognised class "+ classToRandomise);
+			return null;
+		}
 	}
 }

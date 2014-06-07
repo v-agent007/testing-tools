@@ -18,6 +18,16 @@ import co.wds.testingtools.RandomAnnotation.Randomise;
 public class RandomAnnotationTest {
 	@Randomise String randomString_1;
 	@Randomise String randomString_2;
+	@Randomise Long randomLong;
+	@Randomise Integer randomInt;
+	@Randomise Boolean randomBool;
+	@Randomise Double randomDouble;
+	@Randomise Float randomFloat;
+	@Randomise boolean randomBooleanPrimitive;
+	@Randomise long randomLongPrimitive;
+	@Randomise int randomIntPrimitive;
+	@Randomise float randomFloatPrimitive;
+	@Randomise double randomDoublePrimitive;
 	
 	@Before
 	public void setup() throws Exception {
@@ -45,5 +55,49 @@ public class RandomAnnotationTest {
 		}
 		
 		assertThat(randomValues.size(), is(1000));
+	}
+	
+	@Test
+	public void shouldRandomiseLongs() throws Exception {
+		Long l = randomise(Long.class);
+		assertThat(l, is(not(nullValue())));
+		assertThat(randomLong, is(not(nullValue())));
+	}
+	
+	@Test
+	public void shouldRandomiseIntegers() throws Exception {
+		Integer i = randomise(Integer.class);
+		assertThat(i, is(not(nullValue())));
+		assertThat(randomInt, is(not(nullValue())));
+	}
+	
+	@Test
+	public void shouldRandomiseBooleans() throws Exception {
+		Boolean b = randomise(Boolean.class);
+		assertThat(b, is(not(nullValue())));
+		assertThat(randomBool, is(not(nullValue())));
+	}
+	
+	@Test
+	public void shouldRandomiseDoubless() throws Exception {
+		Double d = randomise(Double.class);
+		assertThat(d, is(not(nullValue())));
+		assertThat(randomDouble, is(not(nullValue())));
+	}
+	
+	@Test
+	public void shouldRandomiseFloats() throws Exception {
+		Float f = randomise(Float.class);
+		assertThat(f, is(not(nullValue())));
+		assertThat(randomFloat, is(not(nullValue())));
+	}
+	
+	@Test
+	public void randomisePrimitivesShouldNotThrowAnException() throws Exception {
+		randomise(Integer.class);
+		randomise(Double.class);
+		randomise(Boolean.class);
+		randomise(Float.class);
+		randomise(Long.class);
 	}
 }
