@@ -1,7 +1,7 @@
-package co.wds.testingtools;
+package co.wds.testingtools.annotations;
 
-import static co.wds.testingtools.RandomAnnotation.randomise;
-import static co.wds.testingtools.RandomAnnotation.randomiseFields;
+import static co.wds.testingtools.annotations.RandomAnnotation.randomise;
+import static co.wds.testingtools.annotations.RandomAnnotation.randomiseFields;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -13,7 +13,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-import co.wds.testingtools.RandomAnnotation.Randomise;
+import co.wds.testingtools.annotations.RandomAnnotation.Randomise;
 
 public class RandomAnnotationTest {
 	@Randomise String randomString_1;

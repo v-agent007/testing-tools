@@ -1,4 +1,4 @@
-package co.wds.testingtools;
+package co.wds.testingtools.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
