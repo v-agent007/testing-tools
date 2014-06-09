@@ -57,6 +57,8 @@ public class RandomAnnotation {
 			return (S) (Double) randomiser.nextDouble();
 		} else if (classToRandomise.equals(Float.class) || classToRandomise.equals(float.class)) {
 			return (S) (Float) randomiser.nextFloat();
+		} else if (classToRandomise.equals(Byte.class) || classToRandomise.equals(byte.class)) {
+			return (S) (Byte)((Integer)randomiser.nextInt(Byte.MAX_VALUE)).byteValue();
 		} else if (classToRandomise.equals(String.class)) {
 			return (S) String.format("%h",  randomiser.nextLong());
 		} else {

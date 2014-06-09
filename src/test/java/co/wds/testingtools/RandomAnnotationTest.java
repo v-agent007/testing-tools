@@ -23,11 +23,13 @@ public class RandomAnnotationTest {
 	@Randomise Boolean randomBool;
 	@Randomise Double randomDouble;
 	@Randomise Float randomFloat;
+	@Randomise Byte randomByte;
 	@Randomise boolean randomBooleanPrimitive;
 	@Randomise long randomLongPrimitive;
 	@Randomise int randomIntPrimitive;
 	@Randomise float randomFloatPrimitive;
 	@Randomise double randomDoublePrimitive;
+	@Randomise byte randomBytePrimitive;
 	
 	@Before
 	public void setup() throws Exception {
@@ -93,11 +95,19 @@ public class RandomAnnotationTest {
 	}
 	
 	@Test
+	public void shouldRandomiseByte() throws Exception {
+		Byte b = randomise(Byte.class);
+		assertThat(b, is(not(nullValue())));
+		assertThat(randomByte, is(not(nullValue())));
+	}
+	
+	@Test
 	public void randomisePrimitivesShouldNotThrowAnException() throws Exception {
-		randomise(Integer.class);
-		randomise(Double.class);
-		randomise(Boolean.class);
-		randomise(Float.class);
-		randomise(Long.class);
+		randomise(int.class);
+		randomise(double.class);
+		randomise(boolean.class);
+		randomise(float.class);
+		randomise(long.class);
+		randomise(byte.class);
 	}
 }
