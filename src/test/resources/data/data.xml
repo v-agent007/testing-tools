@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<notes>
+	<note to="Ted" from="Bill">
+		<heading>Reminder</heading>
+		<body>Ted! Don't forget to wind your watch!</body>
+	</note>
+</notes>
