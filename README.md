@@ -44,3 +44,32 @@ public void setup() throws Exception {
   randomiseFields(this);
 }
 ```
+
+## Mapper Servlet
+
+To use the mapper servlet annotation, you will need to add the following imports:
+
+```Java
+import co.wds.testingtools.annotations.MapperServletAnnotations.RespondTo;
+import co.wds.testingtools.annotations.MapperServletAnnotations.ResponseData;
+import co.wds.testingtools.annotations.MapperServletAnnotations.TestServlet;
+
+import static co.wds.testingtools.annotations.MapperServletAnnotations.startMapperServlet;
+import static co.wds.testingtools.annotations.MapperServletAnnotations.stopMapperServlet;
+```
+
+You can then annotate your test class with the following (example):
+
+```Java
+@TestServlet(port=54321, contentType="text/plain")
+@RespondTo({
+	@ResponseData(url="hamlet", resourceFile="hamlet.txt"),
+	@ResponseData(url="test", resourceFile="test.html", contentType="text/html"),
+	@ResponseData(url="data", resourceFile="data.xml", contentType="application/xml"),
+	@ResponseData(url="fake", resourceFile="fake.json", contentType="application/json")
+	})
+```
+
+This should be fairly self explanatory - it will spin up a mapper servlet on port `54321`, with a default content type of `text/plain`. It will respond to the url `hamlet` with the contents of a file called `hamlet.txt` etc.
+
+The resource files should be located in the resources folder alongside your test - see the example tests for more details and how everything works.
