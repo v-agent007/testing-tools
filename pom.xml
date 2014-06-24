@@ -6,6 +6,16 @@
 	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
+	<build>
+		<extensions>
+			<extension>
+				<groupId>org.springframework.build</groupId>
+				<artifactId>aws-maven</artifactId>
+				<version>5.0.0.RELEASE</version>
+			</extension>
+		</extensions>
+	</build>
+
 	<name>testingtools</name>
 	<url>http://maven.apache.org</url>
 
