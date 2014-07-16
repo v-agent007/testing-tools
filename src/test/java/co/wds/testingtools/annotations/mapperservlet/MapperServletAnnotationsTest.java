@@ -12,7 +12,8 @@ import co.wds.testingtools.annotations.MapperServletAnnotations.TestServlet;
 	@ResponseData(url="testing/1234", resourceFile="test1234.json"),
 	@ResponseData(url="fake", resourceFile="fake.json"),
 	@ResponseData(resourceFile="default.json"),
-	@ResponseData(url="teapot", resourceFile="fake.json", status=418)
+	@ResponseData(url="teapot", resourceFile="fake.json", status=418),
+	@ResponseData(url="filenotfound", resourceFile="does_not_exist")
 	})
 public class MapperServletAnnotationsTest extends BaseMapperServletTest {
 	
@@ -39,5 +40,10 @@ public class MapperServletAnnotationsTest extends BaseMapperServletTest {
 	@Test
 	public void shouldReturn404IfUrlNotFound() throws Exception {
 		testServlet("http://localhost:9999/notFound", 404);
+	}
+	
+	@Test
+	public void shouldReturn404IfFileIsNotFoundForKnownUrl() throws Exception {
+		testServlet("http://localhost:9999/filenotfound", 404);
 	}
 }

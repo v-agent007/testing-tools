@@ -1,6 +1,7 @@
 package co.wds.testingtools.annotations.mapperservlet;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,7 +114,12 @@ public class AnnotationMapperServlet extends HttpServlet {
 					response.sendError(status);
 				} else {
 					String fileData = loadFileData("/data/" + fileName);
-					response.getWriter().write(fileData);
+					if (fileData == null) {
+						System.out.println(String.format("Could not find file in test/resources/data/%s", fileName));
+						response.sendError(404);
+					} else {
+						response.getWriter().write(fileData);
+					}
 				}
 				
 			} else {
@@ -148,10 +154,13 @@ public class AnnotationMapperServlet extends HttpServlet {
 
 	protected String loadFileData(String fileName) {
 		String result = null;
-		try {
-			result = IOUtils.toString(this.getClass().getResourceAsStream(fileName), "utf-8");
-		} catch (Exception e) {
-			throw new RuntimeException("Could not read file: " + fileName);
+		InputStream resourceStream = this.getClass().getResourceAsStream(fileName);
+		if (resourceStream != null) {
+			try {
+				result = IOUtils.toString(resourceStream, "utf-8");
+			} catch (Exception e) {
+				throw new RuntimeException("Could not read file: " + fileName);
+			}
 		}
 		return result;
 	}
