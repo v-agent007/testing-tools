@@ -5,7 +5,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import co.wds.testingtools.annotations.mapperservlet.AnnotationMapperServlet;
@@ -62,6 +61,10 @@ public class MapperServletAnnotations {
 	private static void processAnnotations(final Class<? extends Object> testClass,	Object testObject) throws Exception {
 		Class<? extends Object> localTestClass = findAnnotatedSuperClass(testClass);
 		
+		if (localTestClass == null) {
+			throw new IllegalStateException("Annotation not found");
+		}
+		
 		TestServlet testServlet = localTestClass.getAnnotation(TestServlet.class);
 		createServer(testServlet);
 		
@@ -75,7 +78,10 @@ public class MapperServletAnnotations {
 			final Class<? extends Object> testClass) {
 		Class<? extends Object> curClass = testClass;
 		while (curClass.getAnnotation(TestServlet.class) == null) {
-			curClass = curClass.getGenericSuperclass().getClass();
+			curClass = curClass.getSuperclass();
+			if (curClass == Object.class) {
+				return null;
+			}
 		}
 		
 		Class<? extends Object> localTestClass = curClass;
