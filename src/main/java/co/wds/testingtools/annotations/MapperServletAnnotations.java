@@ -60,13 +60,26 @@ public class MapperServletAnnotations {
 	}
 
 	private static void processAnnotations(final Class<? extends Object> testClass,	Object testObject) throws Exception {
-		TestServlet testServlet = testClass.getAnnotation(TestServlet.class);
+		Class<? extends Object> localTestClass = findAnnotatedSuperClass(testClass);
+		
+		TestServlet testServlet = localTestClass.getAnnotation(TestServlet.class);
 		createServer(testServlet);
 		
-		RespondTo respondTo = testClass.getAnnotation(RespondTo.class);
+		RespondTo respondTo = localTestClass.getAnnotation(RespondTo.class);
 		addResponsesFrom(respondTo, testServlet);
 		
 		startServer();
+	}
+
+	private static Class<? extends Object> findAnnotatedSuperClass(
+			final Class<? extends Object> testClass) {
+		Class<? extends Object> curClass = testClass;
+		while (curClass.getAnnotation(TestServlet.class) == null) {
+			curClass = curClass.getGenericSuperclass().getClass();
+		}
+		
+		Class<? extends Object> localTestClass = curClass;
+		return localTestClass;
 	}
 
 	private static void createServer(TestServlet testServlet) {
