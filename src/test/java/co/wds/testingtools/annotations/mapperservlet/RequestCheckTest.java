@@ -1,17 +1,14 @@
 package co.wds.testingtools.annotations.mapperservlet;
 
+import static co.wds.testingtools.annotations.MapperServletAnnotations.mostRecentRequest;
 import static co.wds.testingtools.annotations.MapperServletAnnotations.startMapperServlet;
 import static co.wds.testingtools.annotations.MapperServletAnnotations.stopMapperServlet;
-import static co.wds.testingtools.annotations.MapperServletAnnotations.mostRecentRequest;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
