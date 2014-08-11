@@ -8,11 +8,13 @@ import java.lang.annotation.Target;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import co.wds.testingtools.annotations.mapperservlet.AnnotationMapperServlet;
+import co.wds.testingtools.annotations.mapperservlet.Request;
 import co.wds.testingtools.annotations.mapperservlet.TestingServer;
 
 public class MapperServletAnnotations {
 	
 	private static TestingServer server;
+	private static AnnotationMapperServlet mapperServlet;
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
@@ -57,6 +59,10 @@ public class MapperServletAnnotations {
 			e.printStackTrace();
 		}
 	}
+	
+	public static Request mostRecentRequest() {
+		return mapperServlet.getRequests().get(mapperServlet.getRequests().size() - 1);
+	}
 
 	private static void processAnnotations(final Class<? extends Object> testClass,	Object testObject) throws Exception {
 		Class<? extends Object> localTestClass = findAnnotatedSuperClass(testClass);
@@ -96,10 +102,10 @@ public class MapperServletAnnotations {
 
 	private static void addResponsesFrom(RespondTo respondTo, TestServlet testServlet) {
 		if (server != null && respondTo != null) {
-			AnnotationMapperServlet ms = new AnnotationMapperServlet();
-			ms.setRequiresAuthentication(testServlet.requiresAuthentication());
-			ms.setAuthenticationAllowedUserName(testServlet.userName());
-			ms.setAuthenticationAllowedPassword(testServlet.password());
+			mapperServlet = new AnnotationMapperServlet();
+			mapperServlet.setRequiresAuthentication(testServlet.requiresAuthentication());
+			mapperServlet.setAuthenticationAllowedUserName(testServlet.userName());
+			mapperServlet.setAuthenticationAllowedPassword(testServlet.password());
 			for (ResponseData response : respondTo.value()) {
 				String contentType = response.contentType();
 				if ("".equals(contentType)) {
@@ -112,10 +118,10 @@ public class MapperServletAnnotations {
 				String resourceFile = response.resourceFile();
 				int status = response.status();
 				
-				ms.bindReponse(uri, resourceFile, contentType, status);
+				mapperServlet.bindReponse(uri, resourceFile, contentType, status);
 			}
 			
-			ServletHolder holder = new ServletHolder(ms);
+			ServletHolder holder = new ServletHolder(mapperServlet);
 			server.getHandler().addServlet(holder, "/");
 		}
 	}

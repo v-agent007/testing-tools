@@ -139,6 +139,12 @@ public class AnnotationMapperServlet extends HttpServlet {
 		requestObject.url = urlString;
 		requestObject.body = IOUtils.toString(request.getInputStream(), "utf-8");
 		requestObject.type = type;
+		
+//		while (request.getAttributeNames().hasMoreElements()) {
+//			String attributeName = request.getAttributeNames().nextElement();
+//			Object attributeValue = request.getAttribute(attributeName);
+//		}
+		
 		return requestObject;
 	}
 
