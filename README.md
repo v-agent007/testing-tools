@@ -73,3 +73,42 @@ You can then annotate your test class with the following (example):
 This should be fairly self explanatory - it will spin up a mapper servlet on port `54321`, with a default content type of `text/plain`. It will respond to the url `hamlet` with the contents of a file called `hamlet.txt` etc.
 
 The resource files should be located in the resources folder alongside your test - see the example tests for more details and how everything works.
+
+
+## TestInjectionUtils
+
+# injectPrivateMember(Object destination, String destinationField, Object objectToInject);
+
+The purpose of this tool is to provide the ability to inject a private member of a class under test with any object.
+
+ example of use;
+
+    private class Controller {
+         private Dao dao;
+
+         private doSomethingWithADao(gubbins) {
+             dao.save(gubbins)
+         }
+    }
+
+    ***************************************************
+
+public class TestController {
+
+    Controller controller;
+    Dao mockDao;
+
+    @Before
+    public void setUp(){
+        mockDao = Mockito.mock(Dao.class);
+        controller = new Controller();
+
+        TestInjectionUtils.injectPrivateMember(controller, "dao", mockDao);
+    }
+
+    @Test
+    public void controllerTest() {
+        Mockito.verify(mockDao).save(Mockito.any(String.class));
+    }
+}
+
