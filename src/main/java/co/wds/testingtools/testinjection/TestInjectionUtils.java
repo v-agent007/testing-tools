@@ -18,7 +18,7 @@ public class TestInjectionUtils {
         fieldToSet.set(destination, objectToInject);
 
         if(objectToInject == null){
-            throw new NullPointerException("The object to inject is into the destination is null");
+            throw new NullPointerException("The object to inject into the destination is null");
         }
     }
 }
