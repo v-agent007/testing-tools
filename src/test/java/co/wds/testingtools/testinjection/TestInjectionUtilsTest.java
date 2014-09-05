@@ -16,11 +16,11 @@ public class TestInjectionUtilsTest {
     @Before
     public void setUp(){
         mockDao = Mockito.mock(FakeDao.class);
-        controller = new FakeController();
     }
 
     @Test
     public void iCanInjectAPrivateMemberInAClassWithAnObject() throws NoSuchFieldException, IllegalAccessException {
+        controller = new FakeController();
         Assert.assertTrue(controller.getMockDao() == null);
         TestInjectionUtils.injectPrivateMember(controller, "mockDao", mockDao);
         Assert.assertTrue(controller.getMockDao() != null);
@@ -29,6 +29,7 @@ public class TestInjectionUtilsTest {
 
     @Test(expected = NoSuchFieldException.class)
     public void handleAnExceptionGracefullyWithWrongFieldName() throws NoSuchFieldException, IllegalAccessException {
+        controller = new FakeController();
         Assert.assertTrue(controller.getMockDao() == null);
         TestInjectionUtils.injectPrivateMember(controller, "wrongFieldName", mockDao);
         Assert.assertTrue(controller.getMockDao() == null);
@@ -36,6 +37,7 @@ public class TestInjectionUtilsTest {
 
     @Test(expected = NullPointerException.class)
     public void handleAnExceptionGracefullyWithNullDestinationObject() throws NoSuchFieldException, IllegalAccessException {
+        controller = new FakeController();
         Assert.assertTrue(controller.getMockDao() == null);
         TestInjectionUtils.injectPrivateMember(null, "mockDao", mockDao);
         Assert.assertTrue(controller.getMockDao() == null);
@@ -43,6 +45,7 @@ public class TestInjectionUtilsTest {
 
     @Test(expected = NullPointerException.class)
     public void handleAnExceptionGracefullyWithNullInjectObject() throws NoSuchFieldException, IllegalAccessException {
+        controller = new FakeController();
         Assert.assertTrue(controller.getMockDao() == null);
         TestInjectionUtils.injectPrivateMember(controller, "mockDao", null);
         Assert.assertTrue(controller.getMockDao() == null);
@@ -50,6 +53,7 @@ public class TestInjectionUtilsTest {
 
     @Test
     public void iCanInjectAPrivateMemberWithAMockObjectAndThenPerformMockitoOperationsOnIt() throws NoSuchFieldException, IllegalAccessException {
+        controller = new FakeController();
         Assert.assertTrue(controller.getMockDao() == null);
         TestInjectionUtils.injectPrivateMember(controller, "mockDao", mockDao);
         Assert.assertTrue(controller.getMockDao() != null);
