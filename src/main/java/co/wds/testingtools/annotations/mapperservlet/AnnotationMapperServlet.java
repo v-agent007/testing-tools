@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -139,11 +140,16 @@ public class AnnotationMapperServlet extends HttpServlet {
 		requestObject.url = urlString;
 		requestObject.body = IOUtils.toString(request.getInputStream(), "utf-8");
 		requestObject.type = type;
+		requestObject.headers = new HashMap<String, String>();
 		
-//		while (request.getAttributeNames().hasMoreElements()) {
-//			String attributeName = request.getAttributeNames().nextElement();
-//			Object attributeValue = request.getAttribute(attributeName);
-//		}
+		Enumeration<String> headerNames = request.getHeaderNames();
+		
+		while (headerNames.hasMoreElements()) {
+			String headerName = headerNames.nextElement();
+			String headerValue = request.getHeader(headerName);
+			
+			requestObject.headers.put(headerName, headerValue);
+		}
 		
 		return requestObject;
 	}
