@@ -26,11 +26,13 @@ public class AnnotationMapperServlet extends HttpServlet {
 		private final String resourceFile;
 		private final String contentType;
 		private final int status;
+		private final boolean ignoreParams;
 
-		public MapperBinding(String resourceFile, String contentType, int status) {
+		public MapperBinding(String resourceFile, String contentType, int status, boolean ignoreParams) {
 			this.resourceFile = resourceFile;
 			this.contentType = contentType;
 			this.status = status;
+			this.ignoreParams = ignoreParams;
 		}
 	}
 	
@@ -50,8 +52,13 @@ public class AnnotationMapperServlet extends HttpServlet {
 		this.requests = new ArrayList<Request>();
 	}
 
-	public void bindReponse(String url, String resourceFile, String contentType, int status) {
-		bindings.put(url, new MapperBinding(resourceFile, contentType, status));
+	public void bindReponse(String url, String resourceFile, String contentType, int status, boolean ignoreParams) {
+		if (ignoreParams && url.contains("?")) {
+			String urlWithoutParams = url.split("\\?")[0];
+			bindings.put(urlWithoutParams, new MapperBinding(resourceFile, contentType, status, ignoreParams));
+		} else {
+			bindings.put(url, new MapperBinding(resourceFile, contentType, status, ignoreParams));
+		}
 	}
 	
 	@Override
@@ -102,8 +109,9 @@ public class AnnotationMapperServlet extends HttpServlet {
 
 		requests.add(requestObject);
 
-		if (bindings.containsKey(urlString)) {
-			MapperBinding binding = bindings.get(urlString);
+		MapperBinding binding = getBindingFor(urlString);
+		
+		if (binding != null) {
 			response.setStatus(binding.status);
 			
 			response.setContentType(binding.contentType);
@@ -135,12 +143,24 @@ public class AnnotationMapperServlet extends HttpServlet {
 		response.flushBuffer();
 	}
 
+	private MapperBinding getBindingFor(String url) {
+		String paramlessUrl = url.split("\\?")[0];
+		
+		MapperBinding binding = bindings.get(paramlessUrl);
+		if (binding == null || !binding.ignoreParams) {
+			binding = bindings.get(url); 
+		}
+		
+		return binding;
+	}
+
 	private Request getRequestObject(HttpServletRequest request, String urlString, Request.RequestType type) throws IOException {
 		Request requestObject = new Request();
 		requestObject.url = urlString;
 		requestObject.body = IOUtils.toString(request.getInputStream(), "utf-8");
 		requestObject.type = type;
 		requestObject.headers = new HashMap<String, String>();
+		requestObject.parameters = request.getParameterMap();
 		
 		Enumeration<String> headerNames = request.getHeaderNames();
 		

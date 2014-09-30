@@ -39,6 +39,7 @@ public class MapperServletAnnotations {
 		String resourceFile();
 		String contentType() default "";
 		int status() default 200;
+		boolean ignoreParams() default false;
 	}
 
 	public static void startMapperServlet(Object testObject) {
@@ -117,8 +118,9 @@ public class MapperServletAnnotations {
 				}
 				String resourceFile = response.resourceFile();
 				int status = response.status();
+				boolean ignoreParams = response.ignoreParams();
 				
-				mapperServlet.bindReponse(uri, resourceFile, contentType, status);
+				mapperServlet.bindReponse(uri, resourceFile, contentType, status, ignoreParams);
 			}
 			
 			ServletHolder holder = new ServletHolder(mapperServlet);

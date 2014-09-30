@@ -10,4 +10,5 @@ public class Request {
 	public String body;
 	public RequestType type;
 	public Map<String, String> headers;
+	public Map<String, String[]> parameters;
 }
