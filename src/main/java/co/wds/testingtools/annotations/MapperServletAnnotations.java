@@ -64,6 +64,16 @@ public class MapperServletAnnotations {
 	public static Request mostRecentRequest() {
 		return mapperServlet.getRequests().get(mapperServlet.getRequests().size() - 1);
 	}
+	
+	public static void addMapping(String uri, String resourceFile, String contentType, int status, boolean ignoreParams) {
+		if (!uri.startsWith("/")) {
+			uri = "/" + uri;
+		}
+		
+		if (mapperServlet != null) {
+			mapperServlet.bindReponse(uri, resourceFile, contentType, status, ignoreParams);
+		}
+	}
 
 	private static void processAnnotations(final Class<? extends Object> testClass,	Object testObject) throws Exception {
 		Class<? extends Object> localTestClass = findAnnotatedSuperClass(testClass);
@@ -102,30 +112,28 @@ public class MapperServletAnnotations {
 	}
 
 	private static void addResponsesFrom(RespondTo respondTo, TestServlet testServlet) {
+		mapperServlet = new AnnotationMapperServlet();
+		mapperServlet.setRequiresAuthentication(testServlet.requiresAuthentication());
+		mapperServlet.setAuthenticationAllowedUserName(testServlet.userName());
+		mapperServlet.setAuthenticationAllowedPassword(testServlet.password());
+
 		if (server != null && respondTo != null) {
-			mapperServlet = new AnnotationMapperServlet();
-			mapperServlet.setRequiresAuthentication(testServlet.requiresAuthentication());
-			mapperServlet.setAuthenticationAllowedUserName(testServlet.userName());
-			mapperServlet.setAuthenticationAllowedPassword(testServlet.password());
 			for (ResponseData response : respondTo.value()) {
 				String contentType = response.contentType();
-				if ("".equals(contentType)) {
-					contentType = testServlet.contentType();
-				}
 				String uri = response.url();
-				if (!uri.startsWith("/")) {
-					uri = "/" + uri;
-				}
 				String resourceFile = response.resourceFile();
 				int status = response.status();
 				boolean ignoreParams = response.ignoreParams();
-				
-				mapperServlet.bindReponse(uri, resourceFile, contentType, status, ignoreParams);
+				if ("".equals(contentType)) {
+					contentType = testServlet.contentType();
+				}
+
+				addMapping(uri, resourceFile, contentType, status, ignoreParams);
 			}
-			
-			ServletHolder holder = new ServletHolder(mapperServlet);
-			server.getHandler().addServlet(holder, "/");
 		}
+		
+		ServletHolder holder = new ServletHolder(mapperServlet);
+		server.getHandler().addServlet(holder, "/");
 	}
 
 	private static void startServer() throws Exception {
