@@ -12,7 +12,6 @@ import co.wds.testingtools.annotations.mapperservlet.AnnotationMapperServlet;
 import co.wds.testingtools.annotations.mapperservlet.Request;
 import co.wds.testingtools.annotations.mapperservlet.TestingServer;
 
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -81,10 +80,8 @@ public class MapperServletAnnotations {
 	public static List<Request> getRequests(String forPath) {
 		List<Request> result = Lists.newArrayList();
 		String path;
-		Iterable<String> split;
-		for (Request request : mapperServlet.getRequests()) {
-			split = Splitter.on('?').omitEmptyStrings().split(request.url);
-			path = split.iterator().next();
+		for (Request request : mapperServlet.getRequests()) {		
+			path = request.path;
 			if (!Strings.isNullOrEmpty(path) && path.equals(forPath)) {
 				result.add(request);
 			}

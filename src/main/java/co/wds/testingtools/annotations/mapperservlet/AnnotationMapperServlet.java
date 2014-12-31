@@ -157,6 +157,7 @@ public class AnnotationMapperServlet extends HttpServlet {
 	private Request getRequestObject(HttpServletRequest request, String urlString, Request.RequestType type) throws IOException {
 		Request requestObject = new Request();
 		requestObject.url = urlString;
+		requestObject.path = request.getRequestURI();
 		requestObject.body = IOUtils.toString(request.getInputStream(), "utf-8");
 		requestObject.type = type;
 		requestObject.headers = new HashMap<String, String>();

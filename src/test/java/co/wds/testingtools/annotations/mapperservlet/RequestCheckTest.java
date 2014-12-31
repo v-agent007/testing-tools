@@ -25,10 +25,10 @@ import co.wds.testingtools.annotations.MapperServletAnnotations.TestServlet;
 
 @TestServlet(port=54321, contentType="text/plain")
 @RespondTo({
-	@ResponseData(url="fake", resourceFile="fake.json", contentType="application/json"),
-	@ResponseData(url="samefake", resourceFile="fake.json", contentType="application/json"),
-	@ResponseData(url="fakeignoreparams", resourceFile="fake.json", contentType="application/json", ignoreParams=true),
-	@ResponseData(url="samefakeignoreparams", resourceFile="fake.json", contentType="application/json", ignoreParams=true),
+	@ResponseData(url="/fake", resourceFile="fake.json", contentType="application/json"),
+	@ResponseData(url="/samefake", resourceFile="fake.json", contentType="application/json"),
+	@ResponseData(url="/fake/ignoreparams", resourceFile="fake.json", contentType="application/json", ignoreParams=true),
+	@ResponseData(url="/samefake/ignoreparams", resourceFile="fake.json", contentType="application/json", ignoreParams=true),
 })
 public class RequestCheckTest {
 	@Before
@@ -72,42 +72,69 @@ public class RequestCheckTest {
 	
 	@Test
 	public void getRequestsByUrlShouldStripParams() throws Exception {
-		URL url = new URL("http://localhost:54321/fakeignoreparams?param1=one&param2=two");
+		URL url = new URL("http://localhost:54321/fake/ignoreparams?param1=one&param2=two");
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 		connection.setRequestMethod("GET");
 		assertThat(connection.getResponseCode(), is(200));
 		
-		URL url2 = new URL("http://localhost:54321/samefakeignoreparams?animal=cow");
+		URL url2 = new URL("http://localhost:54321/samefake/ignoreparams?animal=cow");
 		connection = (HttpURLConnection)url2.openConnection();
 		connection.setRequestMethod("GET");
 		assertThat(connection.getResponseCode(), is(200));
 		
 		
-		url = new URL("http://localhost:54321/fakeignoreparams");
+		url = new URL("http://localhost:54321/fake/ignoreparams");
 		connection = (HttpURLConnection)url.openConnection();
 		connection.setRequestMethod("GET");
 		assertThat(connection.getResponseCode(), is(200));
 		
-		List<Request> requestsList = getRequests("/fakeignoreparams");
+		List<Request> requestsList = getRequests("/fake/ignoreparams");
 	
 		assertThat(requestsList, is(not(nullValue())));
 		assertThat(requestsList.size(), is(2));
 				
-		assertThat(requestsList.get(0).url, is("/fakeignoreparams?param1=one&param2=two"));
+		assertThat(requestsList.get(0).url, is("/fake/ignoreparams?param1=one&param2=two"));
+		assertThat(requestsList.get(0).path, is("/fake/ignoreparams"));
 		assertThat(requestsList.get(0).body, is(""));
 		assertThat(requestsList.get(0).type, is(Request.RequestType.GET));
 		
-		assertThat(requestsList.get(1).url, is("/fakeignoreparams"));
+		assertThat(requestsList.get(1).url, is("/fake/ignoreparams"));
+		assertThat(requestsList.get(1).path, is("/fake/ignoreparams"));
 		assertThat(requestsList.get(1).body, is(""));
 		assertThat(requestsList.get(1).type, is(Request.RequestType.GET));
 		
-		requestsList = getRequests("/samefakeignoreparams");	
+		requestsList = getRequests("/samefake/ignoreparams");	
 		assertThat(requestsList, is(not(nullValue())));
 		assertThat(requestsList.size(), is(1));
 				
-		assertThat(requestsList.get(0).url, is("/samefakeignoreparams?animal=cow"));
+		assertThat(requestsList.get(0).url, is("/samefake/ignoreparams?animal=cow"));
+		assertThat(requestsList.get(0).path, is("/samefake/ignoreparams"));
 		assertThat(requestsList.get(0).body, is(""));
 		assertThat(requestsList.get(0).type, is(Request.RequestType.GET));
+	}
+	
+	@Test
+	public void shoudHaveUrlEqualToPathWithNoParams() throws Exception {
+		URL url = new URL("http://localhost:54321/fake/ignoreparams");
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("POST");
+		assertThat(connection.getResponseCode(), is(200));
+		
+		Request unit = mostRecentRequest();
+		assertThat(unit.url, is("/fake/ignoreparams"));
+		assertThat(unit.path, is(unit.url));
+	}
+
+	@Test
+	public void shoudHaveUrlDifferentToPathWithParams() throws Exception {
+		URL url = new URL("http://localhost:54321/fake/ignoreparams?param1=one&param2=two");
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("POST");
+		assertThat(connection.getResponseCode(), is(200));
+		
+		Request unit = mostRecentRequest();
+		assertThat(unit.url, is("/fake/ignoreparams?param1=one&param2=two"));
+		assertThat(unit.path, is("/fake/ignoreparams"));
 	}
 	
 	@Test
