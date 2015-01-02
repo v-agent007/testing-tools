@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 import java.util.List;
 
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import co.wds.testingtools.annotations.mapperservlet.AnnotationMapperServlet;
 import co.wds.testingtools.annotations.mapperservlet.Request;
@@ -15,10 +17,23 @@ import co.wds.testingtools.annotations.mapperservlet.TestingServer;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-public class MapperServletAnnotations {
+public class MapperServlet {
+	
+	private static final Logger logger = LoggerFactory.getLogger(MapperServlet.class);
+	private TestingServer server;
+	private AnnotationMapperServlet mapperServlet;
 
-	private static TestingServer server;
-	private static AnnotationMapperServlet mapperServlet;
+	@SuppressWarnings("unused")
+	private MapperServlet() {
+	}
+
+	public MapperServlet(Object testObject) {
+		try {
+			processAnnotations(Class.forName(testObject.getClass().getName()), testObject);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+	}
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
@@ -54,33 +69,35 @@ public class MapperServletAnnotations {
 		boolean ignoreParams() default false;
 	}
 
-	public static void startMapperServlet(Object testObject) {
-		try {
-			processAnnotations(Class.forName(testObject.getClass().getName()), testObject);
-		} catch (Exception e) {
-			e.printStackTrace();
+	public void start() {
+		if (server != null) {
+			try {
+				server.start();
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
 		}
 	}
 
-	public static void stopMapperServlet() {
-		try {
-			if (server != null) {
+	public void stop() {
+		if (server != null) {
+			try {
 				server.stop();
 				server = null;
+			} catch (Exception e) {
+				logger.error(e.getMessage());
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
-	public static Request mostRecentRequest() {
+	public Request mostRecentRequest() {
 		return mapperServlet.getRequests().get(mapperServlet.getRequests().size() - 1);
 	}
 
-	public static List<Request> getRequests(String forPath) {
+	public List<Request> getRequests(String forPath) {
 		List<Request> result = Lists.newArrayList();
 		String path;
-		for (Request request : mapperServlet.getRequests()) {		
+		for (Request request : mapperServlet.getRequests()) {
 			path = request.path;
 			if (!Strings.isNullOrEmpty(path) && path.equals(forPath)) {
 				result.add(request);
@@ -89,7 +106,7 @@ public class MapperServletAnnotations {
 		return result;
 	}
 
-	public static void addMapping(String uri, String resourceFile, String contentType, int status, boolean ignoreParams) {
+	public void addMapping(String uri, String resourceFile, String contentType, int status, boolean ignoreParams) {
 		if (!uri.startsWith("/")) {
 			uri = "/" + uri;
 		}
@@ -99,7 +116,7 @@ public class MapperServletAnnotations {
 		}
 	}
 
-	private static void processAnnotations(final Class<? extends Object> testClass, Object testObject) throws Exception {
+	private void processAnnotations(final Class<? extends Object> testClass, Object testObject) throws Exception {
 		Class<? extends Object> localTestClass = findAnnotatedSuperClass(testClass);
 
 		if (localTestClass == null) {
@@ -111,11 +128,9 @@ public class MapperServletAnnotations {
 
 		RespondTo respondTo = localTestClass.getAnnotation(RespondTo.class);
 		addResponsesFrom(respondTo, testServlet);
-
-		startServer();
 	}
 
-	private static Class<? extends Object> findAnnotatedSuperClass(final Class<? extends Object> testClass) {
+	private Class<? extends Object> findAnnotatedSuperClass(final Class<? extends Object> testClass) {
 		Class<? extends Object> curClass = testClass;
 		while (curClass.getAnnotation(TestServlet.class) == null) {
 			curClass = curClass.getSuperclass();
@@ -128,13 +143,13 @@ public class MapperServletAnnotations {
 		return localTestClass;
 	}
 
-	private static void createServer(TestServlet testServlet) {
+	private void createServer(TestServlet testServlet) {
 		if (testServlet != null) {
 			server = new TestingServer(testServlet.port());
 		}
 	}
 
-	private static void addResponsesFrom(RespondTo respondTo, TestServlet testServlet) {
+	private void addResponsesFrom(RespondTo respondTo, TestServlet testServlet) {
 		mapperServlet = new AnnotationMapperServlet();
 		mapperServlet.setRequiresAuthentication(testServlet.requiresAuthentication());
 		mapperServlet.setAuthenticationAllowedUserName(testServlet.userName());
@@ -159,9 +174,4 @@ public class MapperServletAnnotations {
 		server.getHandler().addServlet(holder, "/");
 	}
 
-	private static void startServer() throws Exception {
-		if (server != null) {
-			server.start();
-		}
-	}
 }

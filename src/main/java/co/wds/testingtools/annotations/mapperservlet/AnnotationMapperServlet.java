@@ -15,13 +15,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
 
 public class AnnotationMapperServlet extends HttpServlet {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 570675440210200736L;
-
+	private static final Logger logger = LoggerFactory.getLogger(AnnotationMapperServlet.class);
+	
 	private class MapperBinding {
 		private final String resourceFile;
 		private final String contentType;
@@ -105,6 +110,7 @@ public class AnnotationMapperServlet extends HttpServlet {
 		}
 		
 		String urlString = getUrlString(request);
+		logger.debug("Request nr."+requests.size()+1);
 		Request requestObject = getRequestObject(request, urlString, type);
 
 		requests.add(requestObject);
@@ -157,22 +163,34 @@ public class AnnotationMapperServlet extends HttpServlet {
 	private Request getRequestObject(HttpServletRequest request, String urlString, Request.RequestType type) throws IOException {
 		Request requestObject = new Request();
 		requestObject.url = urlString;
+		logger.debug("\t url:"+requestObject.url);
+		
 		requestObject.path = request.getRequestURI();
+		logger.debug("\t path:"+requestObject.path);
+		
 		requestObject.body = IOUtils.toString(request.getInputStream(), "utf-8");
+		logger.debug("\t body:"+requestObject.body);
+		
 		requestObject.type = type;
-		requestObject.headers = new HashMap<String, String>();
+		logger.debug("\t type:"+requestObject.type);
+		
 		requestObject.parameters = request.getParameterMap();
+		logger.debug("\t parameters:"+ Joiner.on(',').withKeyValueSeparator("=").join(requestObject.parameters));
 		
-		Enumeration<String> headerNames = request.getHeaderNames();
-		
-		while (headerNames.hasMoreElements()) {
-			String headerName = headerNames.nextElement();
-			String headerValue = request.getHeader(headerName);
-			
-			requestObject.headers.put(headerName, headerValue);
-		}
+		retrieveRequestObjectHeaders(requestObject, request);
+		logger.debug("\t headers:"+ Joiner.on(',').withKeyValueSeparator("=").join(requestObject.headers));
 		
 		return requestObject;
+	}
+	
+	private void retrieveRequestObjectHeaders(Request requestObject ,HttpServletRequest httpServletRequest){
+		requestObject.headers = new HashMap<String, String>();
+		Enumeration<String> headerNames = httpServletRequest.getHeaderNames();		
+		while (headerNames.hasMoreElements()) {
+			String headerName = headerNames.nextElement();
+			String headerValue = httpServletRequest.getHeader(headerName);		
+			requestObject.headers.put(headerName, headerValue);
+		}
 	}
 
 	@SuppressWarnings("deprecation")

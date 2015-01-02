@@ -1,7 +1,5 @@
 package co.wds.testingtools.annotations.mapperservlet;
 
-import static co.wds.testingtools.annotations.MapperServletAnnotations.startMapperServlet;
-import static co.wds.testingtools.annotations.MapperServletAnnotations.stopMapperServlet;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
@@ -17,20 +15,20 @@ import org.apache.commons.codec.binary.Base64;
 import org.junit.After;
 import org.junit.Before;
 
-public class BaseMapperServletTest {
+import co.wds.testingtools.annotations.MapperServlet;
 
-	public BaseMapperServletTest() {
-		super();
-	}
+public class BaseMapperServletTest {
+	
+	MapperServlet unit = new MapperServlet(this);
 
 	@Before
-	public void setupTest() {
-		startMapperServlet(this);
+	public void setupTest() {	
+		unit.start();
 	}
 
 	@After
 	public void teardownTest() {
-		stopMapperServlet();
+		unit.stop();
 	}
 
 	protected void testServlet(String theUrl, int expectedHttpStatusCode) throws Exception {

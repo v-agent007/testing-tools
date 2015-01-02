@@ -1,9 +1,5 @@
 package co.wds.testingtools.annotations.mapperservlet;
 
-import static co.wds.testingtools.annotations.MapperServletAnnotations.getRequests;
-import static co.wds.testingtools.annotations.MapperServletAnnotations.mostRecentRequest;
-import static co.wds.testingtools.annotations.MapperServletAnnotations.startMapperServlet;
-import static co.wds.testingtools.annotations.MapperServletAnnotations.stopMapperServlet;
 import static co.wds.testingtools.annotations.RandomAnnotation.randomise;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -19,9 +15,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import co.wds.testingtools.annotations.MapperServletAnnotations.RespondTo;
-import co.wds.testingtools.annotations.MapperServletAnnotations.ResponseData;
-import co.wds.testingtools.annotations.MapperServletAnnotations.TestServlet;
+import co.wds.testingtools.annotations.MapperServlet;
+import co.wds.testingtools.annotations.MapperServlet.RespondTo;
+import co.wds.testingtools.annotations.MapperServlet.ResponseData;
+import co.wds.testingtools.annotations.MapperServlet.TestServlet;
 
 @TestServlet(port=54321, contentType="text/plain")
 @RespondTo({
@@ -31,14 +28,17 @@ import co.wds.testingtools.annotations.MapperServletAnnotations.TestServlet;
 	@ResponseData(url="/samefake/ignoreparams", resourceFile="fake.json", contentType="application/json", ignoreParams=true),
 })
 public class RequestCheckTest {
+		
+	MapperServlet mapperServlet = new MapperServlet(this);
+	
 	@Before
 	public void setupTest() {
-		startMapperServlet(this);
+		mapperServlet.start();
 	}
 
 	@After
 	public void teardownTest() {
-		stopMapperServlet();
+		mapperServlet.stop();
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class RequestCheckTest {
 		connection.setRequestMethod("GET");
 		assertThat(connection.getResponseCode(), is(200));
 		
-		Request requestObject = mostRecentRequest();
+		Request requestObject = mapperServlet.mostRecentRequest();
 		assertThat(requestObject, is(not(nullValue())));
 		assertThat(requestObject.url, is("/fake"));
 		assertThat(requestObject.body, is(""));
@@ -62,13 +62,12 @@ public class RequestCheckTest {
 		connection.setRequestMethod("POST");
 		assertThat(connection.getResponseCode(), is(200));
 		
-		Request requestObject = mostRecentRequest();
+		Request requestObject = mapperServlet.mostRecentRequest();
 		assertThat(requestObject, is(not(nullValue())));
 		assertThat(requestObject.url, is("/fake"));
 		assertThat(requestObject.body, is(""));
 		assertThat(requestObject.type, is(Request.RequestType.POST));
 	}
-
 	
 	@Test
 	public void getRequestsByUrlShouldStripParams() throws Exception {
@@ -88,7 +87,7 @@ public class RequestCheckTest {
 		connection.setRequestMethod("GET");
 		assertThat(connection.getResponseCode(), is(200));
 		
-		List<Request> requestsList = getRequests("/fake/ignoreparams");
+		List<Request> requestsList = mapperServlet.getRequests("/fake/ignoreparams");
 	
 		assertThat(requestsList, is(not(nullValue())));
 		assertThat(requestsList.size(), is(2));
@@ -103,7 +102,7 @@ public class RequestCheckTest {
 		assertThat(requestsList.get(1).body, is(""));
 		assertThat(requestsList.get(1).type, is(Request.RequestType.GET));
 		
-		requestsList = getRequests("/samefake/ignoreparams");	
+		requestsList = mapperServlet.getRequests("/samefake/ignoreparams");	
 		assertThat(requestsList, is(not(nullValue())));
 		assertThat(requestsList.size(), is(1));
 				
@@ -120,7 +119,7 @@ public class RequestCheckTest {
 		connection.setRequestMethod("POST");
 		assertThat(connection.getResponseCode(), is(200));
 		
-		Request unit = mostRecentRequest();
+		Request unit = mapperServlet.mostRecentRequest();
 		assertThat(unit.url, is("/fake/ignoreparams"));
 		assertThat(unit.path, is(unit.url));
 	}
@@ -132,7 +131,7 @@ public class RequestCheckTest {
 		connection.setRequestMethod("POST");
 		assertThat(connection.getResponseCode(), is(200));
 		
-		Request unit = mostRecentRequest();
+		Request unit = mapperServlet.mostRecentRequest();
 		assertThat(unit.url, is("/fake/ignoreparams?param1=one&param2=two"));
 		assertThat(unit.path, is("/fake/ignoreparams"));
 	}
@@ -155,7 +154,7 @@ public class RequestCheckTest {
 		connection.setRequestMethod("POST");
 		assertThat(connection.getResponseCode(), is(200));
 		
-		List<Request> requestsList = getRequests("/fake");
+		List<Request> requestsList = mapperServlet.getRequests("/fake");
 	
 		assertThat(requestsList, is(not(nullValue())));
 		assertThat(requestsList.size(), is(2));
@@ -168,7 +167,7 @@ public class RequestCheckTest {
 		assertThat(requestsList.get(1).body, is(""));
 		assertThat(requestsList.get(1).type, is(Request.RequestType.POST));
 		
-		requestsList = getRequests("/samefake");	
+		requestsList = mapperServlet.getRequests("/samefake");	
 		assertThat(requestsList, is(not(nullValue())));
 		assertThat(requestsList.size(), is(1));
 				
@@ -191,7 +190,7 @@ public class RequestCheckTest {
 		
 		assertThat(connection.getResponseCode(), is(200));
 		
-		Request requestObject = mostRecentRequest();
+		Request requestObject = mapperServlet.mostRecentRequest();
 		assertThat(requestObject, is(not(nullValue())));
 		assertThat(requestObject.url, is("/fake"));
 		assertThat(requestObject.body, is("json=blah"));
@@ -213,7 +212,7 @@ public class RequestCheckTest {
 		
 		assertThat(connection.getResponseCode(), is(200));
 		
-		Request requestObject = mostRecentRequest();
+		Request requestObject = mapperServlet.mostRecentRequest();
 		assertThat(requestObject, is(not(nullValue())));
 		assertThat(requestObject.headers.containsKey(customHeaderKey1), is(true));
 		assertThat(requestObject.headers.containsKey(customHeaderKey2), is(true));

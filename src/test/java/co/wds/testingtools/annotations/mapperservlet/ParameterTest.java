@@ -1,14 +1,13 @@
 package co.wds.testingtools.annotations.mapperservlet;
 
-import static co.wds.testingtools.annotations.MapperServletAnnotations.mostRecentRequest;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
-import co.wds.testingtools.annotations.MapperServletAnnotations.RespondTo;
-import co.wds.testingtools.annotations.MapperServletAnnotations.ResponseData;
-import co.wds.testingtools.annotations.MapperServletAnnotations.TestServlet;
+import co.wds.testingtools.annotations.MapperServlet.RespondTo;
+import co.wds.testingtools.annotations.MapperServlet.ResponseData;
+import co.wds.testingtools.annotations.MapperServlet.TestServlet;
 
 
 @TestServlet(port=54321, contentType="text/plain")
@@ -49,7 +48,7 @@ public class ParameterTest extends BaseMapperServletTest {
 	@Test
 	public void shouldRememberTheParametersWhenIgnored() throws Exception {
 		testServlet("http://localhost:54321/params-ignored?test-param=one&another=two", 200);
-		Request mostRecent = mostRecentRequest();
+		Request mostRecent = unit.mostRecentRequest();
 		assertThat(mostRecent.parameters.get("test-param")[0], is("one"));
 		assertThat(mostRecent.parameters.get("another")[0], is("two"));
 	}
@@ -57,7 +56,7 @@ public class ParameterTest extends BaseMapperServletTest {
 	@Test
 	public void shouldRememberTheParametersWhenNotIgnored() throws Exception {
 		testServlet("http://localhost:54321/params-value?a=1", 200);
-		Request mostRecent = mostRecentRequest();
+		Request mostRecent = unit.mostRecentRequest();
 		assertThat(mostRecent.parameters.get("a")[0], is("1"));
 	}
 }

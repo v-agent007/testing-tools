@@ -2,9 +2,9 @@ package co.wds.testingtools.annotations.mapperservlet;
 
 import org.junit.Test;
 
-import co.wds.testingtools.annotations.MapperServletAnnotations.RespondTo;
-import co.wds.testingtools.annotations.MapperServletAnnotations.ResponseData;
-import co.wds.testingtools.annotations.MapperServletAnnotations.TestServlet;
+import co.wds.testingtools.annotations.MapperServlet.RespondTo;
+import co.wds.testingtools.annotations.MapperServlet.ResponseData;
+import co.wds.testingtools.annotations.MapperServlet.TestServlet;
 
 
 @TestServlet(port=9999, requiresAuthentication=true, userName="user", password="password")
