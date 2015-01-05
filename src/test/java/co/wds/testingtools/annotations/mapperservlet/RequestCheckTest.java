@@ -177,6 +177,45 @@ public class RequestCheckTest {
 	}
 	
 	@Test
+	public void shouldBeAbleToClearRequests() throws Exception {
+		URL url = new URL("http://localhost:54321/fake");
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("POST");
+		assertThat(connection.getResponseCode(), is(200));
+		
+		URL url2 = new URL("http://localhost:54321/samefake");
+		connection = (HttpURLConnection)url2.openConnection();
+		connection.setRequestMethod("POST");
+		assertThat(connection.getResponseCode(), is(200));
+				
+		url = new URL("http://localhost:54321/fake");
+		connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("POST");
+		assertThat(connection.getResponseCode(), is(200));
+		
+		List<Request> requestsList = mapperServlet.getRequests("/fake");
+		assertThat(requestsList, is(not(nullValue())));
+		assertThat(requestsList.size(), is(2));
+		
+		requestsList = mapperServlet.getRequests("/samefake");	
+		assertThat(requestsList, is(not(nullValue())));
+		assertThat(requestsList.size(), is(1));
+		
+		mapperServlet.clearRequests();
+		requestsList = mapperServlet.getRequests("/fake");
+		assertThat(requestsList, is(not(nullValue())));
+		assertThat(requestsList.size(), is(0));
+		
+		requestsList = mapperServlet.getRequests("/samefake");	
+		assertThat(requestsList, is(not(nullValue())));
+		assertThat(requestsList.size(), is(0));
+		
+		requestsList = mapperServlet.getRequests("/anyother");	
+		assertThat(requestsList, is(not(nullValue())));
+		assertThat(requestsList.size(), is(0));
+	}
+	
+	@Test
 	public void shouldBeAbleToGetPostDataParameters() throws Exception {
 		URL url = new URL("http://localhost:54321/fake");
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();

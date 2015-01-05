@@ -21,7 +21,7 @@ public class MapperServlet {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MapperServlet.class);
 	private TestingServer server;
-	private AnnotationMapperServlet mapperServlet;
+	private AnnotationMapperServlet annotationMapperServlet;
 
 	@SuppressWarnings("unused")
 	private MapperServlet() {
@@ -89,15 +89,19 @@ public class MapperServlet {
 			}
 		}
 	}
+	
+	public void clearRequests(){
+		annotationMapperServlet.getRequests().clear();
+	}
 
 	public Request mostRecentRequest() {
-		return mapperServlet.getRequests().get(mapperServlet.getRequests().size() - 1);
+		return annotationMapperServlet.getRequests().get(annotationMapperServlet.getRequests().size() - 1);
 	}
 
 	public List<Request> getRequests(String forPath) {
 		List<Request> result = Lists.newArrayList();
 		String path;
-		for (Request request : mapperServlet.getRequests()) {
+		for (Request request : annotationMapperServlet.getRequests()) {
 			path = request.path;
 			if (!Strings.isNullOrEmpty(path) && path.equals(forPath)) {
 				result.add(request);
@@ -111,8 +115,8 @@ public class MapperServlet {
 			uri = "/" + uri;
 		}
 
-		if (mapperServlet != null) {
-			mapperServlet.bindReponse(uri, resourceFile, contentType, status, ignoreParams);
+		if (annotationMapperServlet != null) {
+			annotationMapperServlet.bindReponse(uri, resourceFile, contentType, status, ignoreParams);
 		}
 	}
 
@@ -150,10 +154,10 @@ public class MapperServlet {
 	}
 
 	private void addResponsesFrom(RespondTo respondTo, TestServlet testServlet) {
-		mapperServlet = new AnnotationMapperServlet();
-		mapperServlet.setRequiresAuthentication(testServlet.requiresAuthentication());
-		mapperServlet.setAuthenticationAllowedUserName(testServlet.userName());
-		mapperServlet.setAuthenticationAllowedPassword(testServlet.password());
+		annotationMapperServlet = new AnnotationMapperServlet();
+		annotationMapperServlet.setRequiresAuthentication(testServlet.requiresAuthentication());
+		annotationMapperServlet.setAuthenticationAllowedUserName(testServlet.userName());
+		annotationMapperServlet.setAuthenticationAllowedPassword(testServlet.password());
 
 		if (server != null && respondTo != null) {
 			for (ResponseData response : respondTo.value()) {
@@ -170,7 +174,7 @@ public class MapperServlet {
 			}
 		}
 
-		ServletHolder holder = new ServletHolder(mapperServlet);
+		ServletHolder holder = new ServletHolder(annotationMapperServlet);
 		server.getHandler().addServlet(holder, "/");
 	}
 
