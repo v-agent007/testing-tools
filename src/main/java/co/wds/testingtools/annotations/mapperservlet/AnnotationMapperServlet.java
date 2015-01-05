@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -161,26 +162,40 @@ public class AnnotationMapperServlet extends HttpServlet {
 	}
 
 	private Request getRequestObject(HttpServletRequest request, String urlString, Request.RequestType type) throws IOException {
+		StringBuilder requestLog = new StringBuilder(); 
+		
 		Request requestObject = new Request();
 		requestObject.url = urlString;
-		logger.debug("\t url:"+requestObject.url);
+		requestLog.append("\n\t url:"+requestObject.url+"\n");
 		
 		requestObject.path = request.getRequestURI();
-		logger.debug("\t path:"+requestObject.path);
+		requestLog.append("\t path:"+requestObject.path+"\n");
 		
 		requestObject.body = IOUtils.toString(request.getInputStream(), "utf-8");
-		logger.debug("\t body:"+requestObject.body);
+		requestLog.append("\t body:"+requestObject.body+"\n");
 		
 		requestObject.type = type;
-		logger.debug("\t type:"+requestObject.type);
+		requestLog.append("\t type:"+requestObject.type+"\n");
 		
 		requestObject.parameters = request.getParameterMap();
-		logger.debug("\t parameters:"+ Joiner.on(',').withKeyValueSeparator("=").join(requestObject.parameters));
+		logParameters(requestLog,requestObject.parameters);
 		
 		retrieveRequestObjectHeaders(requestObject, request);
-		logger.debug("\t headers:"+ Joiner.on(',').withKeyValueSeparator("=").join(requestObject.headers));
+		requestLog.append("\t headers:"+ Joiner.on(',').withKeyValueSeparator("=").join(requestObject.headers));
+		
+		logger.debug(requestLog.toString());
 		
 		return requestObject;
+	}
+	
+	private void logParameters(StringBuilder requestLog, Map<String, String[]> parameters){
+		requestLog.append("\t parameters:");
+		for (String key : parameters.keySet()){
+			requestLog.append(key+"=");
+			requestLog.append(Arrays.toString(parameters.get(key)));
+			requestLog.append(" ");
+		}
+		requestLog.append("\n");
 	}
 	
 	private void retrieveRequestObjectHeaders(Request requestObject ,HttpServletRequest httpServletRequest){
