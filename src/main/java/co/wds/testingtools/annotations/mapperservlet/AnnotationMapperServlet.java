@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,8 +17,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Joiner;
 
 public class AnnotationMapperServlet extends HttpServlet {
 	/**
@@ -114,24 +111,12 @@ public class AnnotationMapperServlet extends HttpServlet {
 		Request requestObject = getRequestObject(request, urlString, type);
 		requests.add(requestObject);
 		
-		if (logger.isDebugEnabled()){	
-			StringBuilder requestLog = new StringBuilder();
-			requestLog.append("\n \nRequest nr."+requests.size());
-			requestLog.append("\n\t url:"+requestObject.url+"\n");
-			requestLog.append("\t path:"+requestObject.path+"\n");
-			requestLog.append("\t body:"+requestObject.body+"\n");
-			requestLog.append("\t type:"+requestObject.type+"\n");
-			logParameters(requestLog,requestObject.parameters);
-			requestLog.append("\t headers:"+ Joiner.on(',').withKeyValueSeparator("=").join(requestObject.headers));	
-			requestLog.append("\n");
-			logger.debug(requestLog.toString());
-		}
+		logger.debug("\n \nRequest nr."+requests.size()+requestObject.toString());
 
 		MapperBinding binding = getBindingFor(urlString);
-		
 		if (binding != null) {
 			response.setStatus(binding.status);
-			
+			response.setCharacterEncoding("UTF-8");
 			response.setContentType(binding.contentType);
 			String fileName = binding.resourceFile;
 			
@@ -144,8 +129,8 @@ public class AnnotationMapperServlet extends HttpServlet {
 					if (fileData == null) {
 						System.out.println(String.format("Could not find file in test/resources/data/%s", fileName));
 						response.sendError(404);
-					} else {
-						response.getWriter().write(fileData);
+					} else {						
+						response.getWriter().write(fileData);						
 					}
 				}
 				
@@ -157,7 +142,7 @@ public class AnnotationMapperServlet extends HttpServlet {
 		} else {
 			response.sendError(404);
 		}
-
+		
 		response.flushBuffer();
 	}
 
@@ -181,16 +166,6 @@ public class AnnotationMapperServlet extends HttpServlet {
 		requestObject.parameters = request.getParameterMap();		
 		retrieveRequestObjectHeaders(requestObject, request);
 		return requestObject;
-	}
-	
-	private void logParameters(StringBuilder requestLog, Map<String, String[]> parameters){
-		requestLog.append("\t parameters:");
-		for (String key : parameters.keySet()){
-			requestLog.append(key+"=");
-			requestLog.append(Arrays.toString(parameters.get(key)));
-			requestLog.append(" ");
-		}
-		requestLog.append("\n");
 	}
 	
 	private void retrieveRequestObjectHeaders(Request requestObject ,HttpServletRequest httpServletRequest){
