@@ -111,10 +111,21 @@ public class AnnotationMapperServlet extends HttpServlet {
 		}
 		
 		String urlString = getUrlString(request);
-		logger.debug("Request nr."+requests.size()+1);
 		Request requestObject = getRequestObject(request, urlString, type);
-
 		requests.add(requestObject);
+		
+		if (logger.isDebugEnabled()){	
+			StringBuilder requestLog = new StringBuilder();
+			requestLog.append("\n \nRequest nr."+requests.size());
+			requestLog.append("\n\t url:"+requestObject.url+"\n");
+			requestLog.append("\t path:"+requestObject.path+"\n");
+			requestLog.append("\t body:"+requestObject.body+"\n");
+			requestLog.append("\t type:"+requestObject.type+"\n");
+			logParameters(requestLog,requestObject.parameters);
+			requestLog.append("\t headers:"+ Joiner.on(',').withKeyValueSeparator("=").join(requestObject.headers));	
+			requestLog.append("\n");
+			logger.debug(requestLog.toString());
+		}
 
 		MapperBinding binding = getBindingFor(urlString);
 		
@@ -161,30 +172,14 @@ public class AnnotationMapperServlet extends HttpServlet {
 		return binding;
 	}
 
-	private Request getRequestObject(HttpServletRequest request, String urlString, Request.RequestType type) throws IOException {
-		StringBuilder requestLog = new StringBuilder(); 
-		
+	private Request getRequestObject(HttpServletRequest request, String urlString, Request.RequestType type) throws IOException {	
 		Request requestObject = new Request();
-		requestObject.url = urlString;
-		requestLog.append("\n\t url:"+requestObject.url+"\n");
-		
-		requestObject.path = request.getRequestURI();
-		requestLog.append("\t path:"+requestObject.path+"\n");
-		
+		requestObject.url = urlString;		
+		requestObject.path = request.getRequestURI();	
 		requestObject.body = IOUtils.toString(request.getInputStream(), "utf-8");
-		requestLog.append("\t body:"+requestObject.body+"\n");
-		
-		requestObject.type = type;
-		requestLog.append("\t type:"+requestObject.type+"\n");
-		
-		requestObject.parameters = request.getParameterMap();
-		logParameters(requestLog,requestObject.parameters);
-		
+		requestObject.type = type;		
+		requestObject.parameters = request.getParameterMap();		
 		retrieveRequestObjectHeaders(requestObject, request);
-		requestLog.append("\t headers:"+ Joiner.on(',').withKeyValueSeparator("=").join(requestObject.headers));
-		
-		logger.debug(requestLog.toString());
-		
 		return requestObject;
 	}
 	
