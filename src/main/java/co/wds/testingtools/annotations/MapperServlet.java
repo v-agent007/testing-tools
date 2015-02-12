@@ -20,6 +20,7 @@ import com.google.common.collect.Lists;
 public class MapperServlet {
 	
 	private static final Logger logger = LoggerFactory.getLogger(MapperServlet.class);
+	private static MapperServlet mapperServletInstance;
 	private TestingServer server;
 	private AnnotationMapperServlet annotationMapperServlet;
 
@@ -34,7 +35,18 @@ public class MapperServlet {
 			logger.error(e.getMessage());
 		}
 	}
+	
+	public static void startMapperServlet(Object testObject) {
+		mapperServletInstance = new MapperServlet(testObject);
+		mapperServletInstance.start();
+	}
 
+	public static void stopMapperServlet() {
+		if (mapperServletInstance != null) {
+			mapperServletInstance.stop();
+		}
+	}
+	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
 	public @interface TestServlet {
