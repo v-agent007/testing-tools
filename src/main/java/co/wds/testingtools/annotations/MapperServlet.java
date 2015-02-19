@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -132,7 +133,11 @@ public class MapperServlet {
 	}
 
 	public Request mostRecentRequest() {
-		return annotationMapperServlet.getRequests().get(annotationMapperServlet.getRequests().size() - 1);
+		ArrayList<Request> requests = annotationMapperServlet.getRequests();
+		if(requests.isEmpty()) {
+			return null;
+		}
+		return requests.get(requests.size() - 1);
 	}
 
 	public List<Request> getRequests(String forPath) {
