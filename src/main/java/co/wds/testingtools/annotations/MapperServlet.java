@@ -4,6 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -101,6 +102,30 @@ public class MapperServlet {
 			}
 		}
 	}
+	
+	public static void clearRecentRequests() {
+		if (mapperServletInstance != null) {
+			mapperServletInstance.clearRequests();
+		}
+	}
+	
+	public static Request mostRecent() {
+		if (mapperServletInstance != null) {
+			return mapperServletInstance.mostRecentRequest();
+		} else {
+			return null;
+		}
+	}
+	
+	public static List<Request> allRequests(String forPath) {
+		if (mapperServletInstance != null) {
+			return mapperServletInstance.getRequests(forPath);
+		} else {
+			return Collections.emptyList();
+		}
+	}
+	
+	
 	
 	public void clearRequests(){
 		annotationMapperServlet.getRequests().clear();
