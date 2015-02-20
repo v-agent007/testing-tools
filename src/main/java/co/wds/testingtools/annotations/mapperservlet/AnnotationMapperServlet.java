@@ -18,6 +18,8 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.net.HttpHeaders;
+
 public class AnnotationMapperServlet extends HttpServlet {
 	/**
 	 * 
@@ -30,12 +32,14 @@ public class AnnotationMapperServlet extends HttpServlet {
 		private final String contentType;
 		private final int status;
 		private final boolean ignoreParams;
+		private final String locationHeader;
 
-		public MapperBinding(String resourceFile, String contentType, int status, boolean ignoreParams) {
+		public MapperBinding(String resourceFile, String contentType, int status, boolean ignoreParams, String locationHeader) {
 			this.resourceFile = resourceFile;
 			this.contentType = contentType;
 			this.status = status;
 			this.ignoreParams = ignoreParams;
+			this.locationHeader = locationHeader;
 		}
 	}
 	
@@ -55,12 +59,12 @@ public class AnnotationMapperServlet extends HttpServlet {
 		this.requests = new ArrayList<Request>();
 	}
 
-	public void bindReponse(String url, String resourceFile, String contentType, int status, boolean ignoreParams) {
+	public void bindReponse(String url, String resourceFile, String contentType, int status, boolean ignoreParams, String locationHeader) {
 		if (ignoreParams && url.contains("?")) {
 			String urlWithoutParams = url.split("\\?")[0];
-			bindings.put(urlWithoutParams, new MapperBinding(resourceFile, contentType, status, ignoreParams));
+			bindings.put(urlWithoutParams, new MapperBinding(resourceFile, contentType, status, ignoreParams, locationHeader));
 		} else {
-			bindings.put(url, new MapperBinding(resourceFile, contentType, status, ignoreParams));
+			bindings.put(url, new MapperBinding(resourceFile, contentType, status, ignoreParams, locationHeader));
 		}
 	}
 	
@@ -118,6 +122,7 @@ public class AnnotationMapperServlet extends HttpServlet {
 			response.setStatus(binding.status);
 			response.setCharacterEncoding("UTF-8");
 			response.setContentType(binding.contentType);
+			response.setHeader(HttpHeaders.LOCATION, binding.locationHeader);
 			String fileName = binding.resourceFile;
 			
 			if (!fileName.equals("")) {

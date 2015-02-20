@@ -81,6 +81,8 @@ public class MapperServlet {
 		int status() default 200;
 
 		boolean ignoreParams() default false;
+
+		String locationHeader() default "";
 	}
 
 	public void start() {
@@ -152,13 +154,13 @@ public class MapperServlet {
 		return result;
 	}
 
-	public void addMapping(String uri, String resourceFile, String contentType, int status, boolean ignoreParams) {
+	public void addMapping(String uri, String resourceFile, String contentType, int status, boolean ignoreParams, String locationHeader) {
 		if (!uri.startsWith("/")) {
 			uri = "/" + uri;
 		}
 
 		if (annotationMapperServlet != null) {
-			annotationMapperServlet.bindReponse(uri, resourceFile, contentType, status, ignoreParams);
+			annotationMapperServlet.bindReponse(uri, resourceFile, contentType, status, ignoreParams, locationHeader);
 		}
 	}
 
@@ -208,11 +210,12 @@ public class MapperServlet {
 				String resourceFile = response.resourceFile();
 				int status = response.status();
 				boolean ignoreParams = response.ignoreParams();
+				String locationHeader = response.locationHeader();
 				if ("".equals(contentType)) {
 					contentType = testServlet.contentType();
 				}
 
-				addMapping(uri, resourceFile, contentType, status, ignoreParams);
+				addMapping(uri, resourceFile, contentType, status, ignoreParams, locationHeader);
 			}
 		}
 

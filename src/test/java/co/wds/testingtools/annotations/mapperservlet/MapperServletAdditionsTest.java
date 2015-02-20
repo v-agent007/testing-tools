@@ -8,10 +8,10 @@ import co.wds.testingtools.annotations.MapperServlet.TestServlet;
 public class MapperServletAdditionsTest extends BaseMapperServletTest {
 	@Test
 	public void shouldBeAbleToAddANewMapping() throws Exception {
-		unit.addMapping("hamlet", "hamlet.txt", "text/plain", 200, false);
-		unit.addMapping("test", "test.html", "text/html", 200, false);
-		unit.addMapping("data", "data.xml", "application/xml", 200, false);
-		unit.addMapping("fake", "fake.json", "application/json", 200, false);
+		unit.addMapping("hamlet", "hamlet.txt", "text/plain", 200, false,"any");
+		unit.addMapping("test", "test.html", "text/html", 200, false,"any");
+		unit.addMapping("data", "data.xml", "application/xml", 200, false,"any");
+		unit.addMapping("fake", "fake.json", "application/json", 200, false,"any");
 		
 		testServlet("http://localhost:12345/hamlet", 200, "text/plain", "To be, or not to be.");
 		testServlet("http://localhost:12345/test", 200, "text/html", "<html>\r<head>\r<title>Test</title>\r</head>\r<body>\r<h1>This is a test html</h1>\r</body>\r</html>");
