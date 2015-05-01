@@ -30,12 +30,12 @@ public class MapperServlet {
 	private MapperServlet() {
 	}
 
+	public MapperServlet(final Class<? extends Object> testClass) {
+		processAnnotations(testClass);
+	}
+	
 	public MapperServlet(Object testObject) {
-		try {
-			processAnnotations(Class.forName(testObject.getClass().getName()), testObject);
-		} catch (Exception e) {
-			logger.error(e.getMessage());
-		}
+		this(testObject.getClass());
 	}
 	
 	public static void startMapperServlet(Object testObject) {
@@ -43,6 +43,11 @@ public class MapperServlet {
 		mapperServletInstance.start();
 	}
 
+	public static void startMapperServlet(Class<? extends Object> testClass) {
+		mapperServletInstance = new MapperServlet(testClass);
+		mapperServletInstance.start();
+	}
+	
 	public static void stopMapperServlet() {
 		if (mapperServletInstance != null) {
 			mapperServletInstance.stop();
@@ -70,7 +75,7 @@ public class MapperServlet {
 	}
 
 	@Retention(RetentionPolicy.RUNTIME)
-	@Target(ElementType.TYPE)
+	@Target({ElementType.TYPE, ElementType.METHOD})
 	public @interface ResponseData {
 		String url() default "/";
 
@@ -128,6 +133,19 @@ public class MapperServlet {
 		}
 	}
 	
+	public static void addNewMapping(String uri, String resourceFile, String contentType, int status, boolean ignoreParams, String locationHeader) {
+		if (mapperServletInstance != null) {
+			mapperServletInstance.addMapping(uri, resourceFile, contentType, status, ignoreParams, locationHeader);
+		}
+	}
+	
+	public static void addNewMapping(ResponseData responseData) {
+		if (mapperServletInstance != null) {
+			mapperServletInstance.addResponseDataMapping(responseData, "text/html");
+		}
+	}
+
+	
 	
 	
 	public void clearRequests(){
@@ -164,7 +182,7 @@ public class MapperServlet {
 		}
 	}
 
-	private void processAnnotations(final Class<? extends Object> testClass, Object testObject) throws Exception {
+	private void processAnnotations(final Class<? extends Object> testClass) {
 		Class<? extends Object> localTestClass = findAnnotatedSuperClass(testClass);
 
 		if (localTestClass == null) {
@@ -176,6 +194,20 @@ public class MapperServlet {
 
 		RespondTo respondTo = localTestClass.getAnnotation(RespondTo.class);
 		addResponsesFrom(respondTo, testServlet);
+	}
+
+	protected void addResponseDataMapping(ResponseData responseData, String defaultContentType) {
+		String contentType = responseData.contentType();
+		String uri = responseData.url();
+		String resourceFile = responseData.resourceFile();
+		int status = responseData.status();
+		boolean ignoreParams = responseData.ignoreParams();
+		String locationHeader = responseData.locationHeader();
+		if ("".equals(contentType)) {
+			contentType = defaultContentType;
+		}
+
+		addMapping(uri, resourceFile, contentType, status, ignoreParams, locationHeader);
 	}
 
 	private Class<? extends Object> findAnnotatedSuperClass(final Class<? extends Object> testClass) {
@@ -205,22 +237,11 @@ public class MapperServlet {
 
 		if (server != null && respondTo != null) {
 			for (ResponseData response : respondTo.value()) {
-				String contentType = response.contentType();
-				String uri = response.url();
-				String resourceFile = response.resourceFile();
-				int status = response.status();
-				boolean ignoreParams = response.ignoreParams();
-				String locationHeader = response.locationHeader();
-				if ("".equals(contentType)) {
-					contentType = testServlet.contentType();
-				}
-
-				addMapping(uri, resourceFile, contentType, status, ignoreParams, locationHeader);
+				addResponseDataMapping(response, testServlet.contentType());
 			}
 		}
 
 		ServletHolder holder = new ServletHolder(annotationMapperServlet);
 		server.getHandler().addServlet(holder, "/");
 	}
-
 }
