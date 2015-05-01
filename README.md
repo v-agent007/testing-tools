@@ -91,6 +91,30 @@ public void showMostRecent() {
 }
 ```
 
+Alternatively there is now a JUnit 4.5 Test runner which you can use in your test; use of this means you do are not required to manually start or stop the Mapper Servlet, and it gives the additional benefit of being able to annotate specific methods with response data.
+
+```Java
+@RunWith(MapperServletTestRunner.class)
+@TestServlet(port=54321)
+@RespondTo({
+	@ResponseData(url="test", resourceFile="test.html")
+})
+public class MapperServletTestRunnerTest {
+	@Test
+	@ResponseData(url="hamlet", resourceFile="hamlet.txt")
+	public void shouldRespondToResponseDefinedInTheTestMethodAnnotation() throws Exception {
+		testServlet("http://localhost:54321/hamlet", 200);
+	}
+
+	protected void testServlet(String theUrl, int expectedHttpStatusCode) throws Exception {
+		URL url = new URL(theUrl);
+		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
+		connection.setRequestMethod("GET");
+		assertThat(connection.getResponseCode(), is(expectedHttpStatusCode));
+	}
+}
+```
+
 # Utilities
 
 ## TestInjectionUtils
